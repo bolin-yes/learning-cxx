@@ -22,10 +22,11 @@ public:
 
     // TODO: 实现移动构造器
     DynFibonacci(DynFibonacci && other) noexcept{
-        cache=other.cache;
-        cached=other.cached;
-        other.cache=nullptr;
-    
+        if (this!=&other)
+        {
+            *this=std::move(other);
+        }
+        
 
     }
 
