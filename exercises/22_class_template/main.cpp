@@ -10,6 +10,8 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        std::memcpy(shape,shape_,4*sizeof(unsigned int));
+        size=shape_[0]*shape_[1]*shape_[2]*shape_[3];
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,8 +30,48 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        for (int d = 0; d < 4; ++d) {
+            // 检查 others 的维度是否兼容
+            if (others.shape[d] != 1 && others.shape[d] != this->shape[d]) {
+                throw std::invalid_argument("形状不兼容，无法广播");
+            }
+
+        }
+        //符合规则后，开始索引
+        for (size_t i = 0; i < shape[0]; i++)
+        {
+            for (size_t j = 0; j <shape[1] ; j++)
+            {
+                for (size_t k = 0; k < shape[2]; k++)
+                {
+                    for (size_t z = 0; z < shape[3]; z++)
+                    {
+                      unsigned ti=(others.shape[0]==1)?0:i;
+                      unsigned tj=(others.shape[1]==1)?0:j;
+                      unsigned tk=(others.shape[2]==1)?0:k;
+                      unsigned tz=(others.shape[3]==1)?0:z;
+                      unsigned this_index=i*shape[1]*shape[2]*shape[3]+
+                                          j*shape[2]*shape[3]+
+                                          k*shape[3]+
+                                          z;
+                      unsigned others_index=ti*others.shape[1]*others.shape[2]*others.shape[3]+
+                                            tj*others.shape[2]*others.shape[3]+
+                                            tk*others.shape[3]+
+                                            tz;
+                    data[this_index]+=others.data[others_index];
+                    }
+                    
+                    
+                }
+                
+                
+            
+            
+        }
+    }
         return *this;
     }
+    
 };
 
 // ---- 不要修改以下代码 ----
